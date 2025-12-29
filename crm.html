@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Idea Events CRM - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f8f6f2 0%, #e8e6e0 100%);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: #1a1a1a;
+            color: white;
+            padding: 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            letter-spacing: 3px;
+            font-weight: 300;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #1a1a1a;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .filter-select {
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .inquiries-table {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f8f8;
+        }
+
+        .status-badge {
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-new {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-contacted {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-converted {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .action-btn {
+            padding: 0.5rem 1rem;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
+
+        .action-btn:hover {
+            background: #333;
+        }
+
+        .export-btn {
+            background: #1a1a1a;
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            letter-spacing: 1px;
+        }
+
+        .export-btn:hover {
+            background: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 4rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem;
+            color: #666;
+        }
+
+        .empty-state h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 0.85rem;
+            }
+            
+            th, td {
+                padding: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>IDEA EVENTS CRM</h1>
+    </div>
+
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalInquiries">0</div>
+                <div class="stat-label">Total Inquiries</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="newInquiries">0</div>
+                <div class="stat-label">New This Week</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingInquiries">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters">
+            <input type="text" class="filter-input" id="searchInput" placeholder="Search by name, email, or phone...">
+            <select class="filter-select" id="statusFilter">
+                <option value="all">All Status</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="converted">Converted</option>
+            </select>
+            <button class="export-btn" onclick="exportToCSV()">Export to CSV</button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading">
+            Loading inquiries...
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <h2>No Inquiries Yet</h2>
+            <p>When customers submit the inquiry form on your website, they'll appear here.</p>
+        </div>
+
+        <!-- Inquiries Table -->
+        <div id="inquiriesTable" class="inquiries-table" style="display: none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Event Date</th>
+                        <th>Location</th>
+                        <th>Guests</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="inquiriesBody">
+                    <!-- Data loaded here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9Y2VBl99vT3fSKyjxd7f0RD1fe_dfT5I",
+            authDomain: "idea-events-crm.firebaseapp.com",
+            projectId: "idea-events-crm",
+            storageBucket: "idea-events-crm.firebasestorage.app",
+            messagingSenderId: "202408249998",
+            appId: "1:202408249998:web:ef516f75ee4c230c8b57df"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        let allInquiries = [];
+
+        // Load inquiries
+        function loadInquiries() {
+            db.collection('inquiries')
+                .orderBy('createdAt', 'desc')
+                .onSnapshot((snapshot) => {
+                    allInquiries = [];
+                    snapshot.forEach((doc) => {
+                        allInquiries.push({
+                            id: doc.id,
+                            ...doc.data()
+                        });
+                    });
+
+                    updateStats();
+                    displayInquiries(allInquiries);
+                    
+                    document.getElementById('loading').style.display = 'none';
+                    
+                    if (allInquiries.length === 0) {
+                        document.getElementById('emptyState').style.display = 'block';
+                        document.getElementById('inquiriesTable').style.display = 'none';
+                    } else {
+                        document.getElementById('emptyState').style.display = 'none';
+                        document.getElementById('inquiriesTable').style.display = 'block';
+                    }
+                }, (error) => {
+                    console.error('Error loading inquiries:', error);
+                    document.getElementById('loading').innerHTML = 'Error loading data. Please refresh the page.';
+                });
+        }
+
+        // Display inquiries
+        function displayInquiries(inquiries) {
+            const tbody = document.getElementById('inquiriesBody');
+            tbody.innerHTML = '';
+
+            inquiries.forEach(inquiry => {
+                const row = `
+                    <tr>
+                        <td>${new Date(inquiry.createdAt).toLocaleDateString()}</td>
+                        <td>${inquiry.firstName} ${inquiry.lastName}</td>
+                        <td><a href="mailto:${inquiry.email}">${inquiry.email}</a></td>
+                        <td><a href="tel:${inquiry.phone}">${inquiry.phone}</a></td>
+                        <td>${new Date(inquiry.eventDate).toLocaleDateString()}</td>
+                        <td>${inquiry.location}</td>
+                        <td>${inquiry.guestCount}</td>
+                        <td><span class="status-badge status-${inquiry.status}">${inquiry.status}</span></td>
+                        <td>
+                            <button class="action-btn" onclick="viewDetails('${inquiry.id}')">View</button>
+                            <button class="action-btn" onclick="updateStatus('${inquiry.id}')">Update</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        // Update stats
+        function updateStats() {
+            const now = new Date();
+            const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+
+            document.getElementById('totalInquiries').textContent = allInquiries.length;
+            
+            const newThisWeek = allInquiries.filter(i => 
+                new Date(i.createdAt) > weekAgo
+            ).length;
+            document.getElementById('newInquiries').textContent = newThisWeek;
+            
+            const pending = allInquiries.filter(i => i.status === 'new').length;
+            document.getElementById('pendingInquiries').textContent = pending;
+        }
+
+        // Search and filter
+        document.getElementById('searchInput').addEventListener('input', filterInquiries);
+        document.getElementById('statusFilter').addEventListener('change', filterInquiries);
+
+        function filterInquiries() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+
+            const filtered = allInquiries.filter(inquiry => {
+                const matchesSearch = 
+                    inquiry.firstName.toLowerCase().includes(searchTerm) ||
+                    inquiry.lastName.toLowerCase().includes(searchTerm) ||
+                    inquiry.email.toLowerCase().includes(searchTerm) ||
+                    inquiry.phone.includes(searchTerm);
+
+                const matchesStatus = statusFilter === 'all' || inquiry.status === statusFilter;
+
+                return matchesSearch && matchesStatus;
+            });
+
+            displayInquiries(filtered);
+        }
+
+        // View details
+        function viewDetails(id) {
+            const inquiry = allInquiries.find(i => i.id === id);
+            if (inquiry) {
+                alert(`
+Inquiry Details:
+
+Name: ${inquiry.firstName} ${inquiry.lastName}
+Email: ${inquiry.email}
+Phone: ${inquiry.phone}
+Event Location: ${inquiry.location}
+Event Date: ${new Date(inquiry.eventDate).toLocaleDateString()}
+Guest Count: ${inquiry.guestCount}
+Status: ${inquiry.status}
+
+Details:
+${inquiry.details}
+
+Submitted: ${new Date(inquiry.createdAt).toLocaleString()}
+                `);
+            }
+        }
+
+        // Update status
+        function updateStatus(id) {
+            const newStatus = prompt('Update status to:\n- new\n- contacted\n- converted');
+            
+            if (newStatus && ['new', 'contacted', 'converted'].includes(newStatus)) {
+                db.collection('inquiries').doc(id).update({
+                    status: newStatus,
+                    updatedAt: new Date().toISOString()
+                }).then(() => {
+                    alert('Status updated!');
+                }).catch((error) => {
+                    alert('Error updating status: ' + error.message);
+                });
+            }
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            if (allInquiries.length === 0) {
+                alert('No inquiries to export!');
+                return;
+            }
+
+            const headers = ['Date', 'First Name', 'Last Name', 'Email', 'Phone', 'Event Date', 'Location', 'Guests', 'Status', 'Details'];
+            const rows = allInquiries.map(i => [
+                new Date(i.createdAt).toLocaleDateString(),
+                i.firstName,
+                i.lastName,
+                i.email,
+                i.phone,
+                new Date(i.eventDate).toLocaleDateString(),
+                i.location,
+                i.guestCount,
+                i.status,
+                i.details.replace(/,/g, ';') // Replace commas in details
+            ]);
+
+            const csv = [
+                headers.join(','),
+                ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+            ].join('\n');
+
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `idea-events-inquiries-${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        // Load data on page load
+        loadInquiries();
+    </script>
+</body>
+</html>

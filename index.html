@@ -960,6 +960,26 @@
     <!-- Netlify Identity Widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyC9Y2VBl99vT3fSKyjxd7f0RD1fe_dfT5I",
+            authDomain: "idea-events-crm.firebaseapp.com",
+            projectId: "idea-events-crm",
+            storageBucket: "idea-events-crm.firebasestorage.app",
+            messagingSenderId: "202408249998",
+            appId: "1:202408249998:web:ef516f75ee4c230c8b57df"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+
     <!-- Load Content from JSON Files -->
     <script>
         async function loadContent() {
@@ -1106,7 +1126,7 @@
             const formData = new FormData(form);
             
             // Get form values
-            const data = {
+            const inquiryData = {
                 firstName: formData.get('firstName'),
                 lastName: formData.get('lastName'),
                 phone: formData.get('phone'),
@@ -1115,43 +1135,50 @@
                 eventDate: formData.get('eventDate'),
                 guestCount: formData.get('guestCount'),
                 details: formData.get('details'),
-                files: formData.getAll('inspirationFiles').map(f => f.name).join(', ')
+                status: 'new',
+                createdAt: new Date().toISOString(),
+                source: 'website'
             };
             
-            // Create email body
-            const emailBody = `
+            // Save to Firebase
+            db.collection('inquiries').add(inquiryData)
+                .then((docRef) => {
+                    console.log('Inquiry saved with ID:', docRef.id);
+                    
+                    // Create email body for backup
+                    const emailBody = `
 New Event Inquiry from Idea Events Website
 
 Client Information:
-- Name: ${data.firstName} ${data.lastName}
-- Phone: ${data.phone}
-- Email: ${data.email}
+- Name: ${inquiryData.firstName} ${inquiryData.lastName}
+- Phone: ${inquiryData.phone}
+- Email: ${inquiryData.email}
 
 Event Details:
-- Location: ${data.location}
-- Date: ${data.eventDate}
-- Guest Count: ${data.guestCount}
+- Location: ${inquiryData.location}
+- Date: ${inquiryData.eventDate}
+- Guest Count: ${inquiryData.guestCount}
 
 Detailed Request:
-${data.details}
-
-${data.files ? 'Attached Files: ' + data.files : 'No files attached'}
-            `.trim();
-            
-            // Create mailto link
-            const mailtoLink = `mailto:padbizz@gmail.com?subject=New Event Inquiry - ${data.firstName} ${data.lastName}&body=${encodeURIComponent(emailBody)}`;
-            
-            // Open email client
-            window.location.href = mailtoLink;
-            
-            // Show success message
-            document.getElementById('inquiryForm').style.display = 'none';
-            document.getElementById('inquirySuccess').style.display = 'block';
-            
-            // Close modal after 3 seconds
-            setTimeout(() => {
-                closeInquiryForm();
-            }, 3000);
+${inquiryData.details}
+                    `.trim();
+                    
+                    // Optional: Open email client as backup
+                    const mailtoLink = `mailto:padbizz@gmail.com?subject=New Event Inquiry - ${inquiryData.firstName} ${inquiryData.lastName}&body=${encodeURIComponent(emailBody)}`;
+                    
+                    // Show success message
+                    document.getElementById('inquiryForm').style.display = 'none';
+                    document.getElementById('inquirySuccess').style.display = 'block';
+                    
+                    // Close modal after 3 seconds
+                    setTimeout(() => {
+                        closeInquiryForm();
+                    }, 3000);
+                })
+                .catch((error) => {
+                    console.error('Error saving inquiry:', error);
+                    alert('There was an error submitting your inquiry. Please try again or call us directly at 215-740-5961');
+                });
             
             return false;
         }
