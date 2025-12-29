@@ -38,6 +38,19 @@ collections:
       - {label: "Description", name: "description", widget: "text"}
       - {label: "Order", name: "order", widget: "number"}
 
+  - name: "gallery"
+    label: "Gallery"
+    label_singular: "Gallery Image"
+    folder: "content/gallery"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    fields:
+      - {label: "Title", name: "title", widget: "string", hint: "Event name or description"}
+      - {label: "Image", name: "image", widget: "image"}
+      - {label: "Alt Text", name: "alt", widget: "string", hint: "Describe the image for accessibility"}
+      - {label: "Event Type", name: "eventType", widget: "select", options: ["Wedding", "Birthday", "Corporate", "Baby Shower", "Anniversary", "Other"]}
+      - {label: "Order", name: "order", widget: "number", default: 1, hint: "Lower numbers appear first"}
+
   - name: "testimonials"
     label: "Testimonials"
     folder: "content/testimonials"
