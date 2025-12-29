@@ -1,0 +1,62 @@
+backend:
+  name: git-gateway
+  branch: main
+
+media_folder: "images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "hero"
+    label: "Hero Section"
+    files:
+      - label: "Hero Content"
+        name: "hero"
+        file: "content/hero.json"
+        fields:
+          - {label: "Title", name: "title", widget: "string"}
+          - {label: "Subtitle", name: "subtitle", widget: "text"}
+          - {label: "Background Image", name: "backgroundImage", widget: "image"}
+
+  - name: "about"
+    label: "About Section"
+    files:
+      - label: "About Content"
+        name: "about"
+        file: "content/about.json"
+        fields:
+          - {label: "Title", name: "title", widget: "string"}
+          - {label: "Description", name: "description", widget: "text"}
+
+  - name: "services"
+    label: "Services"
+    folder: "content/services"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Icon (Emoji)", name: "icon", widget: "string"}
+      - {label: "Title", name: "title", widget: "string"}
+      - {label: "Description", name: "description", widget: "text"}
+      - {label: "Order", name: "order", widget: "number"}
+
+  - name: "testimonials"
+    label: "Testimonials"
+    folder: "content/testimonials"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - {label: "Quote", name: "quote", widget: "text"}
+      - {label: "Author", name: "author", widget: "string"}
+      - {label: "Order", name: "order", widget: "number"}
+
+  - name: "contact"
+    label: "Contact Info"
+    files:
+      - label: "Contact Details"
+        name: "contact"
+        file: "content/contact.json"
+        fields:
+          - {label: "Phone", name: "phone", widget: "string"}
+          - {label: "Email", name: "email", widget: "string"}
+          - {label: "Service Area", name: "serviceArea", widget: "text"}
+          - {label: "Instagram", name: "instagram", widget: "string"}
+          - {label: "Facebook", name: "facebook", widget: "string"}
